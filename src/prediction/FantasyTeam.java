@@ -1,21 +1,26 @@
 package prediction;
 
+import Data.FantasyData;
 import Data.Player;
 
 import java.util.*;
 
 class FantasyTeam {
     public int number;
-    public List<Player> wicketPlayers;
-    public List<Player> batPlayers;
-    public List<Player> allRounderPlayers;
-    public List<Player> bowlPlayers;
-    List<Player> players = new ArrayList<>();
-    private PriorityQueue<Player> q1 = new PriorityQueue<>(new PlayerComparator1());
+    public String strwicketPlayers;
+    public String strbatPlayers;
+    public String strallRounderPlayers;
+    public String strbowlPlayers;
+    public double totCr;
+    public double totPredictedFuturePt = -1.0d;
+    private int team1Strength;
+    //List<Player> players = new ArrayList<>();
+    private PriorityQueue<Player> players = new PriorityQueue<>(new PlayerComparator1());
     private int thirtyFivePointMark;
     public Player first;
     public Player second;
     private Random random = new Random();
+    private final FantasyData fantasyData;
 
     class PlayerComparator1 implements Comparator<Player> {
 
@@ -45,52 +50,58 @@ class FantasyTeam {
 //        }
 //    }
 
-    public FantasyTeam() {
-        wicketPlayers = new ArrayList<>();
-        batPlayers = new ArrayList<>();
-        allRounderPlayers = new ArrayList<>();
-        bowlPlayers = new ArrayList<>();
+    public FantasyTeam(FantasyData fantasyData) {
+        this.fantasyData = fantasyData;
     }
 
-    public FantasyTeam(FantasyTeam o) {
-
-        wicketPlayers = o.wicketPlayers;
-        batPlayers = o.batPlayers;
-        allRounderPlayers = o.allRounderPlayers;
-        bowlPlayers = o.bowlPlayers;
-
-        for (Player player : wicketPlayers) {
-            q1.add(player);
+    private List<Player> getPlayerList(String s, List<Player> player) {
+        List<Player> result = new ArrayList<>();
+        for (int i = 0; i < s.length(); i += 2) {
+            result.add(player.get(Integer.parseInt("" + s.charAt(i) + s.charAt(i + 1))));
         }
+        return result;
+    }
 
-        for (Player player : batPlayers) {
-            q1.add(player);
-        }
+    public FantasyTeam(FantasyTeam o, FantasyData fantasyData) {
+        this.fantasyData = fantasyData;
 
-        for (Player player : allRounderPlayers) {
-            q1.add(player);
-        }
+        //   long startTime = System.currentTimeMillis();
+        strbowlPlayers = o.strbowlPlayers;
+        strallRounderPlayers = o.strallRounderPlayers;
+        strbatPlayers = o.strbatPlayers;
+        strwicketPlayers = o.strwicketPlayers;
+        totCr=o.totCr;
+        totPredictedFuturePt=o.totPredictedFuturePt;
 
-        for (Player player : bowlPlayers) {
-            q1.add(player);
-        }
+//        players.addAll(getPlayerListFromStack(o.strwicketPlayers, fantasyData.wkPlayer));
+//        players.addAll(getPlayerListFromStack(o.strbatPlayers, fantasyData.batPlayer));
+//        players.addAll(getPlayerListFromStack(o.strallRounderPlayers, fantasyData.allPlayer));
+//        players.addAll(getPlayerListFromStack(o.strbowlPlayers, fantasyData.bowlPlayer));
 
-
-        thirtyFivePointMark = 0;
-        while (q1.size() != 0) {
-            players.add(q1.poll());
-//            if(Double.compare(players.get(players.size()-1).avgPt,35.0)==1){
-//                thirtyFivePointMark++;
-//            }
-        }
-        selectCandVC();
+//        thirtyFivePointMark = 0;
+//        while (q1.size() != 0) {
+//            players.add(q1.poll());
+////            if(Double.compare(players.get(players.size()-1).avgPt,35.0)==1){
+////                thirtyFivePointMark++;
+////            }
+//        }
+//        selectCandVC();
+        // System.out.println("time taken" + (System.currentTimeMillis() - startTime));
     }
 
     private void selectCandVC() {
 
-        first = players.get(0);
-        second = players.get(1);
-//        //if (thirtyFivePointMark == 11) ;
+        players.addAll(getPlayerList(strwicketPlayers, fantasyData.wkPlayer));
+        players.addAll(getPlayerList(strbatPlayers, fantasyData.batPlayer));
+        players.addAll(getPlayerList(strallRounderPlayers, fantasyData.allPlayer));
+        players.addAll(getPlayerList(strbowlPlayers, fantasyData.bowlPlayer));
+        first = players.poll();
+
+        second = players.poll();
+        players.add(first);
+        players.add(second);
+        //
+// if (thirtyFivePointMark == 11) ;
 //        thirtyFivePointMark = 7;
 //        int bound = 1000000;
 //        int section = random.nextInt(bound);
@@ -111,42 +122,81 @@ class FantasyTeam {
     }
 
     private boolean isLESeven() {
-        int team1Strength = 0;
-        String team1Name = players.get(0).playerTeamName;
-
-        for (Player p : players) {
-            if (p.playerTeamName.equals(team1Name)) team1Strength++;
-        }
-
-        if (team1Strength > 7 || team1Strength < 4) {
-            return false;
-        }
-        return true;
-    }
-
-    private double calTotalCredit() {
-        double totCr = 0.0;
-        for (Player p : players)
-            totCr += p.getCredit();
-        return totCr;
+        return (team1Strength <= 7) && (team1Strength >= 4);
     }
 
     private boolean isLessThanHndrd() {
-        return Double.compare(calTotalCredit(), 100.0) <= 0;
+        return Double.compare(totCr, 100.0) <= 0;
     }
 
+    private void calBasicParameters(){
+        totCr =totPredictedFuturePt= 0.0;
+        team1Strength = 0;
+        String team1Name = fantasyData.wkPlayer.get(Integer.parseInt("" + strwicketPlayers.charAt(0) + strwicketPlayers.charAt(1))).playerTeamName;
+        for (int i = 0; i < strwicketPlayers.length(); i += 2) {
+            totCr += fantasyData.wkPlayer
+                    .get(Integer.parseInt("" + strwicketPlayers.charAt(i) + strwicketPlayers.charAt(i + 1)))
+                    .getCredit();
+
+            totPredictedFuturePt += fantasyData.wkPlayer
+                    .get(Integer.parseInt("" + strwicketPlayers.charAt(i) + strwicketPlayers.charAt(i + 1)))
+                    .predictFuturePoint();
+
+            if (fantasyData.wkPlayer
+                    .get(Integer.parseInt("" + strwicketPlayers.charAt(i) + strwicketPlayers.charAt(i + 1)))
+                    .playerTeamName.equals(team1Name)) team1Strength++;
+        }
+        for (int i = 0; i < strbatPlayers.length(); i += 2) {
+            totCr += fantasyData.batPlayer
+                    .get(Integer.parseInt("" + strbatPlayers.charAt(i) + strbatPlayers.charAt(i + 1)))
+                    .getCredit();
+
+            totPredictedFuturePt += fantasyData.batPlayer
+                    .get(Integer.parseInt("" + strbatPlayers.charAt(i) + strbatPlayers.charAt(i + 1)))
+                    .predictFuturePoint();
+
+            if (fantasyData.batPlayer
+                    .get(Integer.parseInt("" + strbatPlayers.charAt(i) + strbatPlayers.charAt(i + 1)))
+                    .playerTeamName.equals(team1Name)) team1Strength++;
+        }
+        for (int i = 0; i < strallRounderPlayers.length(); i += 2) {
+            totCr += fantasyData.allPlayer
+                    .get(Integer.parseInt("" + strallRounderPlayers.charAt(i) + strallRounderPlayers.charAt(i + 1)))
+                    .getCredit();
+
+            totPredictedFuturePt += fantasyData.allPlayer
+                    .get(Integer.parseInt("" + strallRounderPlayers.charAt(i) + strallRounderPlayers.charAt(i + 1)))
+                    .predictFuturePoint();
+
+            if (fantasyData.allPlayer
+                    .get(Integer.parseInt("" + strallRounderPlayers.charAt(i) + strallRounderPlayers.charAt(i + 1)))
+                    .playerTeamName.equals(team1Name)) team1Strength++;
+        }
+        for (int i = 0; i < strbowlPlayers.length(); i += 2) {
+            totCr += fantasyData.bowlPlayer
+                    .get(Integer.parseInt("" + strbowlPlayers.charAt(i) + strbowlPlayers.charAt(i + 1)))
+                    .getCredit();
+            totPredictedFuturePt += fantasyData.bowlPlayer
+                    .get(Integer.parseInt("" + strbowlPlayers.charAt(i) + strbowlPlayers.charAt(i + 1)))
+                    .predictFuturePoint();
+            if (fantasyData.bowlPlayer
+                    .get(Integer.parseInt("" + strbowlPlayers.charAt(i) + strbowlPlayers.charAt(i + 1)))
+                    .playerTeamName.equals(team1Name)) team1Strength++;
+        }
+    }
     public boolean isFeasible() {
+        calBasicParameters();
         return isLessThanHndrd() && isLESeven();
     }
 
     public double getTotalPredictedPt() {
-
-        double totPredictedFuturePt = 0.0d;// first.getAvgPt() + (second.getAvgPt()) / 2;
-
-        for (Player p : players) {
-            totPredictedFuturePt += p.predictFuturePoint();
-        }
         return totPredictedFuturePt;
+        // first.getAvgPt() + (second.getAvgPt()) / 2;
+//
+//        for (Player p : players) {
+//            totPredictedFuturePt += p.predictFuturePoint();
+//        }
+//        return totPredictedFuturePt;
     }
 
 //    public double getTotActualPt() {
@@ -188,34 +238,35 @@ class FantasyTeam {
     }
 
     public String printTeam(int teamNo) {
+        selectCandVC();
         k = 0;
-        String str = "\n=====================TEAM NO: " + teamNo + " | Cr: " + calTotalCredit() + " | ExpectedPoint: " + getTotalPredictedPt() + " | " + getTeamTotalAccuracy() + "% | " + number + "================";
-        str += "\n" + wicketPlayers + " " + batPlayers + " " + allRounderPlayers + " " + bowlPlayers;
+        String str = "\n=====================TEAM NO: " + teamNo + " | Cr: " + totCr + " | ExpectedPoint: " + getTotalPredictedPt() + " | " + getTeamTotalAccuracy() + "% | " + number + "================";
+        str += "\n" + strwicketPlayers + " " + strbatPlayers + " " + strallRounderPlayers + " " + strbowlPlayers;
         char c;
         String temp = "";
 
-        for (Player player : wicketPlayers) {
+        for (Player player : getPlayerList(strwicketPlayers, fantasyData.wkPlayer)) {
             temp += getCorVC(player) + player.playerName + "(" + player.predictFuturePoint() + ") | ";
         }
 
         str += "\nWICKET\n" + temp;
         temp = "";
 
-        for (Player player : batPlayers) {
+        for (Player player : getPlayerList(strbatPlayers, fantasyData.batPlayer)) {
             temp += getCorVC(player) + player.playerName + "(" + player.predictFuturePoint() + ") | ";
         }
 
         str += "\nBAT\n" + temp;
         temp = "";
 
-        for (Player player : allRounderPlayers) {
+        for (Player player : getPlayerList(strallRounderPlayers, fantasyData.allPlayer)) {
             temp += getCorVC(player) + player.playerName + "(" + player.predictFuturePoint() + ") | ";
         }
 
         str += "\nALL ROUNDER\n" + temp;
         temp = "";
 
-        for (Player player : bowlPlayers) {
+        for (Player player : getPlayerList(strbowlPlayers, fantasyData.bowlPlayer)) {
             temp += getCorVC(player) + player.playerName + "(" + player.predictFuturePoint() + ") | ";
         }
         str += "\nBOWL\n" + temp;

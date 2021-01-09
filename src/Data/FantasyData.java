@@ -36,12 +36,12 @@ public class FantasyData {
     private List<Player> filterOutUnannouncedPlayers(List<Player> players) {
         List<Player> result = new ArrayList<>();
         for (Player player : players) {
-//            if (player.playerAnnounced.equals("⬤ Announced")) {
-//                result.add(player);
-//            }
-            if (player.playerStats.size()>0) {
+            if (player.playerAnnounced.equals("⬤ Announced")) {
                 result.add(player);
             }
+//            if (player.playedLastMatch) {
+//                result.add(player);
+//            }
         }
         return result;
     }

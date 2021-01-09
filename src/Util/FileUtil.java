@@ -1,11 +1,14 @@
 package Util;
 
+import Config.Config;
+
 import java.io.*;
 
 public class FileUtil {
     private static FileUtil util;
-    private static final String filePath = "D:/teams/data2.json";
-    private static final String filePathTeams = "D:/teams/teams.txt";
+    private static final String filePath = "D:/teams/" + ((Config.TEAM1_NAME == null) ? "data2" : (Config.TEAM1_NAME + "vs" + Config.TEAM2_NAME)) + ".json";
+
+    private static final String filePathTeams ="D:/teams/teams.txt";
 
     public static FileUtil getInstance() {
         if (util == null) {

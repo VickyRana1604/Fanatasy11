@@ -28,7 +28,7 @@ public class PlayerView extends Action {
 
     public String playerName;
     public String playerTeamName;
-    public String playerAnnounced = "didn't played last match";
+    public String playerAnnounced = "NA";
     public String playerCredit;
     public String playerSel;
 
@@ -73,7 +73,7 @@ public class PlayerView extends Action {
 
     @Override
     protected void perform(MobileElement el, int index) throws ViewFilterException {
-        playerIndividualMatchViews.add(new PlayerPastMatchView(driver, index));
+            playerIndividualMatchViews.add(new PlayerPastMatchView(driver, index));
     }
 
     @Override

@@ -4,6 +4,7 @@ import Config.Config;
 import Util.DateUtil;
 import Util.RegressionUtil;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -16,7 +17,9 @@ public class Player {
     public double[] parameters;
     public double accuracy;
     public double pointMean;
+    public double futurePt;
     public List<PlayerStats> playerStats;
+    public boolean playedLastMatch;
 
 
     public Player(String playerName,
@@ -30,10 +33,12 @@ public class Player {
         this.playerAnnounced = playerAnnounced;
         this.playerCredit = playerCredit;
         this.playerSel = playerSel;
-        this.playerStats = playerStats;
+        this.playerStats = getNoNDNPData(playerStats);
         this.parameters = null;
         this.accuracy = -1.0d;
         this.pointMean = 0.0d;
+        futurePt = -10000000.0d;
+        this.playedLastMatch = playerStats.size() > 0 && !playerStats.get(0).point.equals("DNP");
         calculatePointMean();
         estimateParameters();
         int a = 1;
@@ -55,11 +60,21 @@ public class Player {
         this.playerAnnounced = playerAnnounced;
         this.playerCredit = playerCredit;
         this.playerSel = playerSel;
-        this.playerStats = playerStats;
+        this.playerStats = getNoNDNPData(playerStats);
         this.pointMean = pointMean;
         calculatePointMean();
         estimateParameters();
-        int a=1;
+        int a = 1;
+    }
+
+    private List<PlayerStats> getNoNDNPData(List<PlayerStats> playerStats) {
+        List<PlayerStats> result = new ArrayList<>();
+        for (PlayerStats stats : playerStats) {
+            if (!stats.point.equals("DNP")) {
+                result.add(stats);
+            }
+        }
+        return result;
     }
 
     private double[][] getXStats() {
@@ -107,11 +122,17 @@ public class Player {
     }
 
     public double getCredit() {
+        //if (Double.compare(plCredit, 0.0d) == 0)
         return Double.parseDouble(playerCredit);
+        //  return plCredit;
     }
 
     public double getMatchDayNo() {
-        return DateUtil.getDiffBetween(Calendar.getInstance().getTime(), DateUtil.parseDate(playerStats.get(playerStats.size() - 1).date));
+        try {
+            return DateUtil.getDiffBetween(Calendar.getInstance().getTime(), DateUtil.parseDate(playerStats.get(playerStats.size() - 1).date));
+        } catch (IndexOutOfBoundsException e) {
+            return 1;
+        }
     }
 
     public void estimateParameters() {
@@ -132,7 +153,7 @@ public class Player {
             sqVarSumFromLine += (predictPastPoint(i) - playerStats.get(i).getPoint()) * (predictPastPoint(i) - playerStats.get(i).getPoint());
         }
         accuracy = sqVarSumFromMean - sqVarSumFromLine;
-        accuracy /= sqVarSumFromMean;
+        accuracy = Double.compare(sqVarSumFromMean, 0.0) == 0 ? 1.0 : (accuracy / sqVarSumFromMean);
     }
 
     private void calculatePointMean() {
@@ -152,17 +173,19 @@ public class Player {
     }
 
     public double predictFuturePoint() {
-        double res = parameters[0];
-        if (Config.indVariableCount >= 1)
-            res += parameters[1] * getSel();
-        if (Config.indVariableCount >= 2)
-            res += parameters[2] * getMatchDayNo();
-        if (Config.indVariableCount >= 3)
-            res += parameters[3] * getCredit();
-        if (playerStats.size() <= Config.indVariableCount) {
-            res = (res + pointMean) / 2.0;
+        if (Double.compare(futurePt, -10000000.0d) == 0) {
+            futurePt = parameters[0];
+            if (Config.indVariableCount >= 1)
+                futurePt += parameters[1] * getSel();
+            if (Config.indVariableCount >= 2)
+                futurePt += parameters[2] * getMatchDayNo();
+            if (Config.indVariableCount >= 3)
+                futurePt += parameters[3] * getCredit();
+            if (playerStats.size() <= Config.indVariableCount) {
+                futurePt = (futurePt + pointMean) / 2.0;
+            }
         }
-        return res;
+        return futurePt;
     }
 
     public double predictPastPoint(int index) {

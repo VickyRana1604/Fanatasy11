@@ -9,8 +9,13 @@ import java.util.Random;
 public class Config {
     public static final boolean isFirstMatch = true;
 
-    public static final boolean isDataPrepared = false;
-    public static final boolean isLineupAnnounced = false;
+    public static String TEAM1_NAME;
+
+    public static String TEAM2_NAME;
+
+    public static final boolean isDataPrepared = true;
+    public static final boolean isLineupAnnounced = true;
+    public static final int leagueNo = 1;
     public static final int indVariableCount = 2;
 
     public final List<TeamArrangement> teamArrangements = new ArrayList();
@@ -94,7 +99,13 @@ public class Config {
 
 
     private void insertDubaiTeamConfig() {
+        teamArrangements.add(new TeamArrangement(1, 5, 4, 1));
         teamArrangements.add(new TeamArrangement(1, 4, 5, 1));
+        teamArrangements.add(new TeamArrangement(1, 3, 5, 2));
+        teamArrangements.add(new TeamArrangement(1, 5, 3, 2));
+        teamArrangements.add(new TeamArrangement(1, 4, 4, 2));
+        teamArrangements.add(new TeamArrangement(1, 3, 4, 3));
+        teamArrangements.add(new TeamArrangement(1, 4, 3, 3));
 //        teamArrangements.add(new TeamArrangement(1, 3, 2, 5));
 //        teamArrangements.add(new TeamArrangement(1, 3, 3, 4));
 //        teamArrangements.add(new TeamArrangement(1, 3, 2, 5));

@@ -18,9 +18,10 @@ public class PlayerTabVew extends Action {
     private String PLAYER_ANNOUNCED_ELEMENT_ID = "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.LinearLayout[1]/android.widget.FrameLayout[2]/android.widget.LinearLayout/androidx.viewpager.widget.ViewPager/android.widget.FrameLayout/android.widget.LinearLayout/androidx.recyclerview.widget.RecyclerView/android.view.ViewGroup[%s]/android.widget.LinearLayout/android.widget.LinearLayout/android.widget.TextView";
     public List<PlayerView> playerViews = new ArrayList<>();
 
+
     public PlayerTabVew(AndroidDriver<AndroidElement> driver, int tabNo) {
         super(driver, tabNo);
-        if(tabNo!=4)return;
+        //if(tabNo!=4)return;
         TAB_ELEMENT_ID = String.format(TAB_ELEMENT_ID, tabNo);
         waitTillItLoads(TAB_ELEMENT_ID);
         click("TAB_ELEMENT_ID", TAB_ELEMENT_ID);
@@ -34,7 +35,7 @@ public class PlayerTabVew extends Action {
     protected void perform(MobileElement el, int index) {
         // int a=1;
         //if (getText("PLAYER_ANNOUNCED_ELEMENT_ID",String.format(PLAYER_ANNOUNCED_ELEMENT_ID, index)).equals("⬤ Announced"))
-        playerViews.add(new PlayerView(driver, index));
+            playerViews.add(new PlayerView(driver, index));
     }
 
     @Override

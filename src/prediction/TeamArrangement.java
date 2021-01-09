@@ -7,19 +7,19 @@ public class TeamArrangement {
     private final int bo;
 
     public int getW() {
-        return w;
+        return 2 * w;
     }
 
     public int getBa() {
-        return ba;
+        return 2 * ba;
     }
 
     public int getA() {
-        return a;
+        return 2 * a;
     }
 
     public int getBo() {
-        return bo;
+        return 2 * bo;
     }
 
     public TeamArrangement(int w, int ba, int a, int bo) {

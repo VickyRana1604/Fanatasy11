@@ -29,9 +29,6 @@ public class PlayerPastMatchView extends Action {
         DATE_ELEMENT_ID = String.format(DATE_ELEMENT_ID, matchNo);
         sel = getText("PLAYER_SEL_ELEMENT_ID", PLAYER_SEL_ELEMENT_ID);
         point = getText("PLAYER_POINT_ELEMENT_ID", PLAYER_POINT_ELEMENT_ID);
-        if (point.equals("DNP")) {
-            throw new ViewFilterException("Player didn't  played this match");
-        }
         credit = getText("PLAYER_CREDIT_ELEMENT_ID", PLAYER_CREDIT_ELEMENT_ID);
         vsTeam = getText("VS_TEAM_ELEMENT_ID", VS_TEAM_ELEMENT_ID);
         date = getText("DATE_ELEMENT_ID", DATE_ELEMENT_ID);
@@ -50,7 +47,6 @@ public class PlayerPastMatchView extends Action {
 
     private void checkValidity() {
         if (sel.charAt(sel.length() - 1) != '%') throw new RuntimeException("Invalid sel");
-        Integer.parseInt(point);
-        if (credit.charAt(1) != '.') throw new RuntimeException("Invalid credit");
+        //if (credit.charAt(1) != '.') throw new RuntimeException("Invalid credit");
     }
 }
