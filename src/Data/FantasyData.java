@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FantasyData {
+    public boolean hasAnnouncedData;
+    public boolean hasCompleteData;
     public List<Player> wkPlayer;
     public List<Player> batPlayer;
     public List<Player> allPlayer;
@@ -16,32 +18,29 @@ public class FantasyData {
         this.batPlayer = batPlayer;
         this.allPlayer = allPlayer;
         this.bowlPlayer = bowlPlayer;
+        this.hasAnnouncedData = false;
+        this.hasCompleteData = false;
+        init();
+    }
+
+    public void init() {
+        estimateParameter();
         estimateParameterForDNPPlayers();
     }
 
     public void estimateParameterForDNPPlayers() {
-        estimateParameterForDNPPlayers(this.wkPlayer);
-        estimateParameterForDNPPlayers(this.batPlayer);
-        estimateParameterForDNPPlayers(this.allPlayer);
-        estimateParameterForDNPPlayers(this.bowlPlayer);
+        estimateParameterForDNPPlayers(filterOutUnannouncedPlayers(this.wkPlayer));
+        estimateParameterForDNPPlayers(filterOutUnannouncedPlayers(this.batPlayer));
+        estimateParameterForDNPPlayers(filterOutUnannouncedPlayers(this.allPlayer));
+        estimateParameterForDNPPlayers(filterOutUnannouncedPlayers(this.bowlPlayer));
     }
 
-    public void filterOutUnannouncedPlayers() {
-        this.wkPlayer = filterOutUnannouncedPlayers(this.wkPlayer);
-        this.batPlayer = filterOutUnannouncedPlayers(this.batPlayer);
-        this.allPlayer = filterOutUnannouncedPlayers(this.allPlayer);
-        this.bowlPlayer = filterOutUnannouncedPlayers(this.bowlPlayer);
-    }
-
-    private List<Player> filterOutUnannouncedPlayers(List<Player> players) {
+    public List<Player> filterOutUnannouncedPlayers(List<Player> players) {
         List<Player> result = new ArrayList<>();
         for (Player player : players) {
-            if (player.playerAnnounced.equals("⬤ Announced")) {
+            if (player.playerAnnounced.equals("⬤ Announced") || player.playedLastMatch) {
                 result.add(player);
             }
-//            if (player.playedLastMatch) {
-//                result.add(player);
-//            }
         }
         return result;
     }
@@ -52,12 +51,12 @@ public class FantasyData {
         Player p = null;
         List<Player> sufficientDataPlayer = new ArrayList<>();
         for (Player player : players) {
-            if (player.playerStats.size() > Config.indVariableCount)
+            if (player.getNoNDNPData().size() > Config.indVariableCount)
                 sufficientDataPlayer.add(player);
         }
 
         for (Player insuffiicientDataPlayers : players) {
-            if (insuffiicientDataPlayers.playerStats.size() <= Config.indVariableCount) {
+            if (insuffiicientDataPlayers.getNoNDNPData().size() <= Config.indVariableCount) {
                 minDist = 1000000000.0d;
 
                 for (Player player : sufficientDataPlayer) {
@@ -67,9 +66,13 @@ public class FantasyData {
                         minDist = dist;
                     }
                 }
-                if (p != null) {
-                    insuffiicientDataPlayers.accuracy = p.accuracy;
-                    insuffiicientDataPlayers.parameters = p.parameters.clone();
+                try {
+                    if (p != null) {
+                        insuffiicientDataPlayers.accuracy = p.accuracy;
+                        insuffiicientDataPlayers.parameters = p.parameters.clone();
+                    }
+                } catch (Exception e) {
+                    int a = 1;
                 }
             }
         }

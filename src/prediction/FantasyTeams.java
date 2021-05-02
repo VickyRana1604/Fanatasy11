@@ -13,12 +13,12 @@ public class FantasyTeams {
     private FantasyData fantasyData;
     private final String team1Name;
 
-    //    private PriorityQueue<FantasyTeam> temp = new PriorityQueue<FantasyTeam>(new TeamComparator1());
-//    private static final int Max = 10;
+    private PriorityQueue<FantasyTeam> temp = new PriorityQueue<FantasyTeam>(new TeamComparator1());
+    //    private static final int Max = 10;
     FixSizePQueue pQueue = new FixSizePQueue(new TeamComparator());
 
     private class FixSizePQueue {
-        private final static int maxTeamAllowed = 1000;
+        private final static int maxTeamAllowed = 100000;
         private final TeamComparator comparator;
         private final PriorityQueue<FantasyTeam> minQueue;
         private final PriorityQueue<FantasyTeam> maxQueue;
@@ -51,14 +51,18 @@ public class FantasyTeams {
             }
         }
 
+        public FantasyTeam peek() {
+            return maxQueue.peek();
+        }
+
         public int size() {
             return maxQueue.size();
         }
 
         public FantasyTeam poll() {
             FantasyTeam team = maxQueue.poll();
-            minQueue.remove(team);
-            return  team;
+            // minQueue.remove(team);
+            return team;
         }
     }
 
@@ -84,13 +88,6 @@ public class FantasyTeams {
 //        return 0;
 //    }
 
-//    private int basedOnActualResult(FantasyTeam t1, FantasyTeam t2) {
-//        if (t2.getTotActualPt() < t1.getTotActualPt())
-//            return -1;
-//        else if (t2.getTotActualPt() > t1.getTotActualPt())
-//            return 1;
-//        return 0;
-//    }
 
     private int basedOnTotalFuturePredictedPt(FantasyTeam t1, FantasyTeam t2) {
         if (t2.getTotalPredictedPt() < t1.getTotalPredictedPt())
@@ -100,25 +97,32 @@ public class FantasyTeams {
         return 0;
     }
 
-//    private int basedOnTotAccuracy(FantasyTeam t1, FantasyTeam t2) {
-//        return -Double.compare(t1.getTotAccuracy(), t2.getTotAccuracy());
-//    }
+    private int basedOnTotAccuracy(FantasyTeam t1, FantasyTeam t2) {
+        return Double.compare(t1.getTeamTotalAccuracy(), t2.getTeamTotalAccuracy());
+    }
 
     class TeamComparator implements Comparator<FantasyTeam> {
         @Override
         public int compare(FantasyTeam t1, FantasyTeam t2) {
+
+            int diff = Math.abs(((int) (t1.getTotalPredictedPt() - t2.getTotalPredictedPt())));
+            int b1 = (int) t1.getTotalPredictedPt() / 10;
+            int b2 = (int) t2.getTotalPredictedPt() / 10;
+            if (b1 == b2) {
+                return Double.compare(t1.getTeamTotalAccuracy(), t2.getTeamTotalAccuracy());
+            }
             return -basedOnTotalFuturePredictedPt(t1, t2);
         }
     }
 
-//
-//    class TeamComparator1 implements Comparator<FantasyTeam> {
-//        @Override
-//        public int compare(FantasyTeam t1, FantasyTeam t2) {
-//            //return Double.compare(t1.getTotAccuracy(),t2.getTotAccuracy());
-//            return basedOnActualResult(t1, t2);
-//        }
-//    }
+
+    class TeamComparator1 implements Comparator<FantasyTeam> {
+        @Override
+        public int compare(FantasyTeam t1, FantasyTeam t2) {
+            //return Double.compare(t1.getTotAccuracy(),t2.getTotAccuracy());
+            return -Double.compare(t1.getActualPt(), t2.getActualPt());
+        }
+    }
 
     public FantasyTeams(TeamArrangement ta) {
         findAllTeams(ta);
@@ -136,7 +140,7 @@ public class FantasyTeams {
     int f = 0;
     private long startTime = System.currentTimeMillis();
 
-//        private void recurBowl(TeamArrangement ta, FantasyTeam team, int index, String s, double totCr) {
+    //        private void recurBowl(TeamArrangement ta, FantasyTeam team, int index, String s, double totCr) {
 //        if (s.length() == ta.getBo()) {
 //
 //            long curr = (System.currentTimeMillis() - startTime) / 1000;
@@ -303,7 +307,7 @@ public class FantasyTeams {
         List<FantasyTeam> pls = new ArrayList<>();
         if (ta == null)
             for (TeamArrangement arrangement : Config.getInstance().teamArrangements)
-                recurWicket(arrangement, new FantasyTeam(fantasyData), 0, "", 0.0,0,0,0.0);
+                recurWicket(arrangement, new FantasyTeam(fantasyData), 0, "", 0.0, 0, 0, 0.0);
 //        else
 //            recurWicket(ta, new FantasyTeam(fantasyData), 0, "", 0.0, 0, 0, 0.0);
 //            for (int i = 0; i < Max; i++) {
@@ -352,12 +356,33 @@ public class FantasyTeams {
 //    }
 
     private void showAllTeams(int ct) throws IOException {
-
+        int a = 1;
         while (pQueue.size() != 0) {
-            FileUtil.getInstance().printTeams(pQueue.poll().printTeam(Config.TEAM_COUNT++));
+            FileUtil.getInstance().printTeams(
+                    pQueue.poll().printTeam(Config.TEAM_COUNT++));
+        }
+        int b = 1;
+    }
+
+    public void showCorrectTopTeams(int ct) throws IOException {
+        int a = 1;
+        while (pQueue.size() != 0) {
+            pQueue.peek().number = Config.TEAM_COUNT++;
+            temp.add(pQueue.poll());
+        }
+        while (temp.size() != 0) {
+            FileUtil.getInstance().printTeams(
+                    temp.poll().printTeam(Config.TEAM_COUNT++));
         }
     }
 
+    public void showGraph(int ct) throws IOException {
+        int a = 1;
+        while (pQueue.size() != 0) {
+            FantasyTeam t = pQueue.poll();
+            Analysis.getInstance().showGraph((int)Math.abs(t.getActualPt() - t.getTotalPredictedPt()));
+        }
+    }
 //    private void showTopTeams(int T) throws IOException {
 //        int ct = 0;
 //

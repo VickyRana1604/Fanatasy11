@@ -13,10 +13,11 @@ public class Config {
 
     public static String TEAM2_NAME;
 
-    public static final boolean isDataPrepared = true;
-    public static final boolean isLineupAnnounced = true;
-    public static final int leagueNo = 1;
-    public static final int indVariableCount = 2;
+    public static boolean isDataPrepared = false;
+    public static final boolean startFindingTeam = true;
+    public static boolean isLineupAnnounced;
+    public static int leagueNo = 1;
+    public static final int indVariableCount = 1;
 
     public final List<TeamArrangement> teamArrangements = new ArrayList();
     private static Config config = null;
@@ -31,11 +32,42 @@ public class Config {
     public static int T = 16;
     public static int F = 17;
 
+    private void insertCriConfig() {
+        for (int i = 1; i <= 4; i++) {
+            for (int j = 3; j <= 6; j++) {
+                for (int k = 1; k <= 4; k++) {
+                    for (int l = 3; l <= 6; l++) {
+                        if ((i + j + k + l) == 11)
+                            teamArrangements.add(new TeamArrangement(i, j, k, l));
+                    }
+                }
+            }
+        }
+    }
+
+    private void insertFooConfig() {
+        for (int i = 1; i <= 1; i++) {
+            for (int j = 3; j <= 5; j++) {
+                for (int k = 3; k <= 5; k++) {
+                    for (int l = 1; l <= 3; l++) {
+                        if ((i + j + k + l) == 11)
+                            teamArrangements.add(new TeamArrangement(i, j, k, l));
+                    }
+                }
+            }
+        }
+    }
+
+
     private Config() {
 //        insertDubaiTeamConfig();
 //        insertKXIP(true);
 //        insertSRH(false);
-        insertDubaiTeamConfig();
+        //insertFooConfig();
+     insertCriConfig();
+     //  teamArrangements.add(new TeamArrangement(1,3,1,6));
+        //   insertSarjahTeamConfig();
+        //insertDubaiTeamConfig();
         //insertMI(true);
         //insertDC(false);
 //
@@ -55,6 +87,10 @@ public class Config {
         }
         return config;
     }
+
+    //motera
+//    2315
+//    1316
 
 
     private void insertSarjahTeamConfig() {

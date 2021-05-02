@@ -44,7 +44,6 @@ public class TeamView extends Action {
         playerTabVews.get(1).updateAnnouncementAndSel(fantasyData.batPlayer);
         playerTabVews.get(2).updateAnnouncementAndSel(fantasyData.allPlayer);
         playerTabVews.get(3).updateAnnouncementAndSel(fantasyData.bowlPlayer);
-        fantasyData.estimateParameter();
-        fantasyData.estimateParameterForDNPPlayers();
+        fantasyData.init();
     }
 }

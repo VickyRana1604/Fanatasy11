@@ -7,6 +7,7 @@ import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.touch.WaitOptions;
 import io.appium.java_client.touch.offset.PointOption;
 
+import javax.lang.model.element.Element;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.HashSet;
@@ -30,7 +31,8 @@ public class Action {
     }
 
     public String getText(String keyName, String elementId, long spawnTimeMillis) {
-        return getElement(keyName, elementId, spawnTimeMillis).getText();
+        MobileElement element = getElement(keyName, elementId, spawnTimeMillis);
+        return (element != null) ? element.getText() : "";
     }
 
     public void click(String keyName, String elementId, long spawnTimeMillis) {
@@ -76,7 +78,7 @@ public class Action {
         long startTime = System.currentTimeMillis();
         while (true) {
             try {
-                driver.findElementByXPath(elementId);
+                MobileElement element=driver.findElementByXPath(elementId);
                 return;
             } catch (Exception e) {
                 if ((System.currentTimeMillis() - startTime) >= 10000) {

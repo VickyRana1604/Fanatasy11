@@ -1,25 +1,27 @@
-//package prediction;
-//
-//
-//import java.io.BufferedWriter;
-//import java.io.IOException;
-//import java.util.Comparator;
-//import java.util.PriorityQueue;
-//
-//public class Analysis {
-//    double[] percentCount;
-//    double[] maxPt;
-//    double[] minPt;
-//    FantasyTeam[] mnTeam;
-//    FantasyTeam[] mxTeam;
-//    double count;
-//    private static int range = 201;
-//    private static double deno = 100.0 / ((double) (range - 1));
-//    private PriorityQueue<FantasyTeam> imps = new PriorityQueue<FantasyTeam>(new TeamComparator());
+package prediction;
+
+
+import Util.FileUtil;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+
+public class Analysis {
+    double[] percentCount;
+    double[] maxPt;
+    double[] minPt;
+    FantasyTeam[] mnTeam;
+    FantasyTeam[] mxTeam;
+    double count;
+    private static int range = 201;
+    private static double deno = 100.0 / ((double) (range - 1));
+    //    private PriorityQueue<FantasyTeam> imps = new PriorityQueue<FantasyTeam>(new TeamComparator());
 //    int WINNING_ACCURACY = 75;
-//    double lB =(0.73 * range);
-//    double uB = (0.96 * range);
-//
+    double lB = (0.73 * range);
+    double uB = (0.96 * range);
+
 //
 //    class TeamComparator implements Comparator<FantasyTeam> {
 //
@@ -34,9 +36,9 @@
 //            //return basedOnDr11WithExpectedCVcResultDiff(t1,t2);
 //        }
 //    }
-//
-//    private static Analysis analysis;
-//
+
+    private static Analysis analysis;
+
 //    public void printImpTeams() throws IOException {
 //        Dr11Data.TEAM_COUNT = 0;
 //        while (imps.size() != 0) {
@@ -48,13 +50,13 @@
 //        if (((int) team.getTeamTotalAccuracy()) == WINNING_ACCURACY)
 //            imps.add(team);
 //    }
-//
-//    public static Analysis getInstance() {
-//        if (analysis == null) {
-//            analysis = new Analysis();
-//        }
-//        return analysis;
-//    }
+
+    public static Analysis getInstance() {
+        if (analysis == null) {
+            analysis = new Analysis();
+        }
+        return analysis;
+    }
 //
 //    private Analysis() {
 //        percentCount = new double[range];
@@ -150,5 +152,13 @@
 ////        printRange((int)(lB+3*rangePr),(int)(lB+4*rangePr),FileUtil.getInstance().writer4);
 ////        printRange((int)(lB+4*rangePr),(int)(lB+5*rangePr),FileUtil.getInstance().writer5);
 //    }
-//
-//}
+
+    public void showGraph(int v) {
+
+        while (v >= 0) {
+            FileUtil.getInstance().setStr("■");
+            v /= 10;
+        }
+        FileUtil.getInstance().setStr("\n");
+    }
+}
